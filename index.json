@@ -2,13 +2,6 @@
   "version": "1.0.0",
   "templates": [
     { "id": "classic", "label": "Classic", "file": "templates/classic.html" },
-    { "id": "modern", "label": "Modern", "file": "templates/modern.html" },
-    { "id": "elegant", "label": "Elegant", "file": "templates/elegant.html" },
-    { "id": "minimal", "label": "Minimal", "file": "templates/minimal.html" },
-    { "id": "professional", "label": "Professional", "file": "templates/professional.html" },
-    { "id": "creative", "label": "Creative", "file": "templates/creative.html" },
-    { "id": "simple", "label": "Simple", "file": "templates/simple.html" },
-    { "id": "bold", "label": "Bold", "file": "templates/bold.html" },
-    { "id": "shadcn", "label": "Shadcn", "file": "templates/shadcn.html" }
+    { "id": "modern", "label": "Modern", "file": "templates/modern.html" }
   ]
 }
