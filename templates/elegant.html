@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @page { size:A4; margin:15mm; }
+    :root { --foreground:#1e293b; --muted:#f8fafc; --muted-fg:#94a3b8; --border:#e2e8f0; --primary:#8b5cf6; --primary-light:#f5f3ff; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Georgia','Times New Roman',serif; color:var(--foreground); padding:15mm; line-height:1.6; font-size:11px; }
+    .header { text-align:center; padding-bottom:20px; border-bottom:2px solid var(--primary); margin-bottom:24px; }
+    .company { font-size:18px; font-weight:700; color:var(--primary); margin-bottom:6px; letter-spacing:0.05em; }
+    .company-info { font-size:9px; color:var(--muted-fg); line-height:1.6; }
+    .invoice-title { font-size:28px; font-weight:300; color:var(--foreground); margin-top:12px; letter-spacing:0.1em; text-transform:uppercase; }
+    .invoice-number { font-size:12px; color:var(--muted-fg); margin-top:4px; }
+    .row { display:flex; justify-content:space-between; gap:40px; margin-bottom:20px; padding:16px; background:var(--muted); border-radius:4px; }
+    .block { flex:1; }
+    .label { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:8px; font-family:-apple-system,sans-serif; }
+    .value { font-size:10px; line-height:1.7; }
+    table { width:100%; border-collapse:collapse; margin:20px 0; }
+    th { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); text-align:left; padding:12px 8px; border-bottom:2px solid var(--primary); font-family:-apple-system,sans-serif; }
+    th.right { text-align:right; }
+    td { padding:14px 8px; border-bottom:1px solid var(--border); vertical-align:top; font-size:10px; }
+    td.right { text-align:right; }
+    tbody tr:hover { background:var(--muted); }
+    .totals { margin-top:20px; display:flex; justify-content:flex-end; }
+    .totals table { width:240px; }
+    .totals td { border:none; padding:8px 0; font-size:11px; }
+    .totals .label { color:var(--muted-fg); font-size:10px; }
+    .totals .grand { font-size:16px; font-weight:700; color:var(--primary); padding-top:12px; border-top:2px solid var(--primary); }
+    .notes { margin-top:24px; padding:16px; background:var(--primary-light); border-left:4px solid var(--primary); }
+    .notes-title { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:8px; font-family:-apple-system,sans-serif; }
+    .notes-body { font-size:10px; color:var(--foreground); line-height:1.7; white-space:pre-line; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="company">{{companyName}}</div>
+    <div class="company-info">{{{companyLines}}}</div>
+    <div class="invoice-title">Invoice</div>
+    <div class="invoice-number">#{{invoiceNumber}}</div>
+  </div>
+
+  <div class="row">
+    <div class="block">
+      <div class="label">Bill To</div>
+      <div class="value">{{{clientLines}}}</div>
+    </div>
+    <div class="block">
+      <div class="label">Invoice Dates</div>
+      <div class="value">
+        <strong>Issued:</strong> {{issuedOn}}<br>
+        <strong>Due:</strong> {{dueOn}}
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th class="right">Quantity</th>
+        <th class="right">Rate</th>
+        <th class="right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{{itemsRows}}}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <table>
+      <tr><td class="label">Subtotal</td><td class="right">{{subtotalFormatted}}</td></tr>
+      <tr><td class="label">Tax ({{taxRateLabel}}%)</td><td class="right">{{taxAmountFormatted}}</td></tr>
+      <tr class="grand"><td class="label">Total</td><td class="right">{{totalFormatted}}</td></tr>
+    </table>
+  </div>
+
+  {{{notesBlock}}}
+</body>
+</html>
