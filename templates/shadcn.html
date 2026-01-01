@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @page { size:A4; margin:10mm; }
+    :root { 
+      --background:#ffffff; 
+      --foreground:#020817; 
+      --card:#ffffff; 
+      --card-foreground:#020817; 
+      --primary:#0f172a; 
+      --primary-foreground:#f8fafc; 
+      --muted:#f1f5f9; 
+      --muted-foreground:#64748b; 
+      --border:#e2e8f0; 
+      --ring:#94a3b8; 
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { 
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif; 
+      color:var(--foreground); 
+      padding:10mm; 
+      line-height:1.5; 
+      font-size:10px; 
+      background:var(--background); 
+    }
+    .card { 
+      background:var(--card); 
+      border:1px solid var(--border); 
+      border-radius:8px; 
+      padding:16px; 
+      margin-bottom:16px; 
+    }
+    .header { 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:flex-start; 
+      padding-bottom:16px; 
+      border-bottom:2px solid var(--border); 
+      margin-bottom:16px; 
+    }
+    .badge { 
+      display:inline-flex; 
+      align-items:center; 
+      border-radius:9999px; 
+      background:var(--primary); 
+      color:var(--primary-foreground); 
+      padding:4px 12px; 
+      font-size:9px; 
+      font-weight:600; 
+      text-transform:uppercase; 
+      letter-spacing:0.05em; 
+      margin-bottom:6px; 
+    }
+    .title { 
+      font-size:24px; 
+      font-weight:700; 
+      margin-bottom:4px; 
+      color:var(--foreground); 
+    }
+    .muted { 
+      color:var(--muted-foreground); 
+      font-size:9px; 
+      line-height:1.5; 
+    }
+    .company { 
+      font-weight:600; 
+      font-size:13px; 
+      margin-bottom:4px; 
+    }
+    .grid { 
+      display:grid; 
+      grid-template-columns:1fr 1fr; 
+      gap:16px; 
+      margin-bottom:16px; 
+    }
+    .label { 
+      font-size:8px; 
+      font-weight:600; 
+      text-transform:uppercase; 
+      letter-spacing:0.05em; 
+      color:var(--muted-foreground); 
+      margin-bottom:6px; 
+    }
+    .value { 
+      font-size:10px; 
+      line-height:1.6; 
+      color:var(--foreground); 
+    }
+    table { 
+      width:100%; 
+      border-collapse:collapse; 
+      margin:16px 0; 
+      border:1px solid var(--border); 
+      border-radius:8px; 
+      overflow:hidden; 
+    }
+    thead { 
+      background:var(--muted); 
+    }
+    th { 
+      font-size:8px; 
+      font-weight:600; 
+      text-transform:uppercase; 
+      letter-spacing:0.05em; 
+      color:var(--muted-foreground); 
+      text-align:left; 
+      padding:10px 12px; 
+      border-bottom:1px solid var(--border); 
+    }
+    th.right { text-align:right; }
+    td { 
+      padding:12px; 
+      border-bottom:1px solid var(--border); 
+      vertical-align:top; 
+      font-size:10px; 
+    }
+    td.right { text-align:right; }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover { background:var(--muted); }
+    .totals { 
+      margin-top:16px; 
+      display:flex; 
+      justify-content:flex-end; 
+    }
+    .totals-card { 
+      background:var(--muted); 
+      border:1px solid var(--border); 
+      border-radius:8px; 
+      padding:12px 16px; 
+      min-width:240px; 
+    }
+    .totals table { 
+      border:none; 
+      margin:0; 
+      background:transparent; 
+    }
+    .totals td { 
+      border:none; 
+      padding:6px 0; 
+      font-size:10px; 
+    }
+    .totals .label { 
+      color:var(--muted-foreground); 
+      font-size:9px; 
+    }
+    .totals .grand { 
+      font-size:14px; 
+      font-weight:700; 
+      padding-top:8px; 
+      border-top:2px solid var(--border); 
+    }
+    .notes { 
+      margin-top:16px; 
+      background:var(--muted); 
+      border:1px solid var(--border); 
+      border-radius:8px; 
+      padding:14px; 
+    }
+    .notes-title { 
+      font-size:8px; 
+      font-weight:600; 
+      text-transform:uppercase; 
+      letter-spacing:0.05em; 
+      color:var(--muted-foreground); 
+      margin-bottom:8px; 
+    }
+    .notes-body { 
+      font-size:9px; 
+      color:var(--foreground); 
+      line-height:1.6; 
+      white-space:pre-line; 
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="badge">Invoice</div>
+      <div class="title">#{{invoiceNumber}}</div>
+      <div class="muted">Issued: {{issuedOn}} · Due: {{dueOn}}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="company">{{companyName}}</div>
+      <div class="muted">{{{companyLines}}}</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Bill To</div>
+      <div class="value">{{{clientLines}}}</div>
+    </div>
+    <div class="card">
+      <div class="label">Invoice Dates</div>
+      <div class="value">
+        <div><strong>Issued:</strong> {{issuedOn}}</div>
+        <div><strong>Due:</strong> {{dueOn}}</div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th class="right">Qty</th>
+        <th class="right">Rate</th>
+        <th class="right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{{itemsRows}}}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div class="totals-card">
+      <table>
+        <tr><td class="label">Subtotal</td><td class="right">{{subtotalFormatted}}</td></tr>
+        <tr><td class="label">Tax ({{taxRateLabel}}%)</td><td class="right">{{taxAmountFormatted}}</td></tr>
+        <tr class="grand"><td class="label">Total</td><td class="right">{{totalFormatted}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  {{{notesBlock}}}
+</body>
+</html>

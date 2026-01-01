@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @page { size:A4; margin:10mm; }
+    :root { --foreground:#0f172a; --muted:#f1f5f9; --muted-fg:#64748b; --border:#cbd5e1; --primary:#3b82f6; --primary-light:#dbeafe; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter','Segoe UI',sans-serif; color:var(--foreground); padding:10mm; line-height:1.4; font-size:10px; }
+    .header { background:linear-gradient(135deg,var(--primary) 0%,#1e40af 100%); color:white; padding:20px; margin:-10mm -10mm 16px -10mm; }
+    .header-content { display:flex; justify-content:space-between; align-items:flex-start; }
+    .title { font-size:24px; font-weight:700; margin-bottom:4px; }
+    .invoice-label { font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:0.1em; opacity:0.9; }
+    .company { font-weight:600; font-size:12px; margin-bottom:4px; }
+    .company-info { font-size:9px; line-height:1.5; opacity:0.9; }
+    .row { display:flex; gap:24px; margin-bottom:16px; }
+    .block { flex:1; background:var(--muted); padding:12px; border-radius:6px; }
+    .label { font-size:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-fg); margin-bottom:6px; }
+    .value { font-size:10px; line-height:1.6; }
+    table { width:100%; border-collapse:collapse; margin:16px 0; }
+    th { font-size:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-fg); text-align:left; padding:10px 8px; background:var(--muted); }
+    th.right { text-align:right; }
+    td { padding:12px 8px; border-bottom:1px solid var(--border); vertical-align:top; font-size:10px; }
+    td.right { text-align:right; }
+    .totals { margin-top:16px; display:flex; justify-content:flex-end; }
+    .totals table { width:220px; }
+    .totals td { border:none; padding:6px 0; font-size:10px; }
+    .totals .label { color:var(--muted-fg); font-size:9px; }
+    .totals .grand { font-size:14px; font-weight:700; background:var(--primary-light); padding:8px; border-radius:4px; }
+    .notes { margin-top:16px; border-left:3px solid var(--primary); padding:12px; background:var(--muted); }
+    .notes-title { font-size:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-fg); margin-bottom:6px; }
+    .notes-body { font-size:9px; color:var(--foreground); line-height:1.6; white-space:pre-line; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <div class="invoice-label">Invoice</div>
+        <div class="title">#{{invoiceNumber}}</div>
+        <div class="company-info">Issued: {{issuedOn}} · Due: {{dueOn}}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="company">{{companyName}}</div>
+        <div class="company-info">{{{companyLines}}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="block">
+      <div class="label">Bill To</div>
+      <div class="value">{{{clientLines}}}</div>
+    </div>
+    <div class="block">
+      <div class="label">Invoice Details</div>
+      <div class="value">
+        <strong>Issued:</strong> {{issuedOn}}<br>
+        <strong>Due:</strong> {{dueOn}}
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item Description</th>
+        <th class="right">Qty</th>
+        <th class="right">Rate</th>
+        <th class="right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{{itemsRows}}}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <table>
+      <tr><td class="label">Subtotal</td><td class="right">{{subtotalFormatted}}</td></tr>
+      <tr><td class="label">Tax ({{taxRateLabel}}%)</td><td class="right">{{taxAmountFormatted}}</td></tr>
+      <tr class="grand"><td class="label">Total Due</td><td class="right">{{totalFormatted}}</td></tr>
+    </table>
+  </div>
+
+  {{{notesBlock}}}
+</body>
+</html>
