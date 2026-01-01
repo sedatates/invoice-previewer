@@ -90,7 +90,7 @@
 
   <script>
     // ============================================
-    // TEMPLATE - Buraya kendi template'ini yapıştır
+    // TEMPLATE - Paste your custom template here
     // ============================================
     const DEFAULT_TEMPLATE_HTML = `<!doctype html>
 <html>
@@ -178,7 +178,7 @@
 </html>`;
 
     // ============================================
-    // INVOICE DATA - Örnek fatura verisi
+    // INVOICE DATA - Sample invoice data
     // ============================================
     const DEFAULT_INVOICE_DATA = {
       companyName: "GreenField Lawn & Landscape",
@@ -298,17 +298,29 @@
     function updatePreview() {
       try {
         const template = templateEditor.value;
-        const invoiceData = JSON.parse(dataEditor.value);
+        
+        // Parse JSON data
+        let invoiceData;
+        try {
+          invoiceData = JSON.parse(dataEditor.value);
+        } catch (e) {
+          console.error('JSON parsing error:', e);
+          alert('JSON Parsing Error: ' + e.message + '\nPlease check your invoice data format.');
+          return;
+        }
+        
+        // Prepare and render template
         const preparedData = prepareTemplateData(invoiceData);
         const renderedHtml = renderTemplate(template, preparedData);
         
+        // Render in iframe (isolated context for security)
         const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
         doc.open();
         doc.write(renderedHtml);
         doc.close();
       } catch (e) {
         console.error('Render error:', e);
-        alert('Error: ' + e.message);
+        alert('Template Render Error: ' + e.message + '\nPlease check your template syntax.');
       }
     }
 
