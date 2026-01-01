@@ -39,13 +39,6 @@ const CDN = 'https://cdn.jsdelivr.net/gh/sedatates/invoice-previewer@v1.0.0';
 |---|---|---|
 | **classic** | Classic | Clean and professional design with green accents |
 | **modern** | Modern | Contemporary blue gradient header design |
-| **elegant** | Elegant | Sophisticated purple theme with serif fonts |
-| **minimal** | Minimal | Simple black and white minimalist layout |
-| **professional** | Professional | Business-oriented blue theme with sections |
-| **creative** | Creative | Vibrant gradient design with rounded cards |
-| **simple** | Simple | Straightforward gray design with clear sections |
-| **bold** | Bold | Strong black and red design with impact fonts |
-| **shadcn** | Shadcn | Modern design system inspired by shadcn/ui |
 
 ## 🔧 Template Placeholders
 
