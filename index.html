@@ -1,410 +1,335 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fatura Önizleyici - Invoice Previewer</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Template Previewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #fafafa; min-height: 100vh; }
+    
+    .container { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
+    
+    .editor-panel { background: #18181b; border-right: 1px solid #27272a; display: flex; flex-direction: column; overflow: hidden; }
+    .preview-panel { background: #71717a; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .panel-header { padding: 12px 16px; background: #27272a; border-bottom: 1px solid #3f3f46; display: flex; justify-content: space-between; align-items: center; }
+    .panel-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #a1a1aa; }
+    
+    .editor-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    
+    .tabs { display: flex; gap: 2px; padding: 8px 16px; background: #27272a; }
+    .tab { padding: 8px 16px; font-size: 12px; font-weight: 500; background: transparent; border: none; color: #71717a; cursor: pointer; border-radius: 6px; transition: all 0.15s; }
+    .tab:hover { color: #a1a1aa; background: #3f3f46; }
+    .tab.active { background: #3f3f46; color: #fafafa; }
+    
+    .tab-content { flex: 1; display: none; overflow: hidden; }
+    .tab-content.active { display: flex; flex-direction: column; }
+    
+    textarea { flex: 1; background: #09090b; border: none; color: #fafafa; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 12px; line-height: 1.6; padding: 16px; resize: none; outline: none; }
+    textarea::placeholder { color: #52525b; }
+    
+    .preview-content { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; }
+    
+    .preview-frame { background: #fff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; width: 210mm; min-height: 297mm; }
+    .preview-frame iframe { width: 100%; height: 100%; border: none; min-height: 297mm; }
+    
+    .btn { padding: 8px 16px; font-size: 12px; font-weight: 500; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: #16a34a; color: #fff; }
+    .btn-primary:hover { background: #15803d; }
+    .btn-secondary { background: #3f3f46; color: #fafafa; }
+    .btn-secondary:hover { background: #52525b; }
+    
+    .actions { display: flex; gap: 8px; }
+    
+    .status { font-size: 11px; color: #16a34a; display: flex; align-items: center; gap: 6px; }
+    .status::before { content: ''; width: 6px; height: 6px; background: #16a34a; border-radius: 50%; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .invoice-section {
-            padding: 40px;
-        }
-
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .company-info h2 {
-            color: #667eea;
-            font-size: 1.8em;
-            margin-bottom: 10px;
-        }
-
-        .company-info p {
-            color: #666;
-            margin: 5px 0;
-        }
-
-        .invoice-details {
-            text-align: right;
-        }
-
-        .invoice-details h3 {
-            color: #764ba2;
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        .invoice-details p {
-            color: #666;
-            margin: 5px 0;
-        }
-
-        .invoice-number {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .customer-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-
-        .customer-info h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .customer-info p {
-            color: #555;
-            margin: 5px 0;
-        }
-
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-
-        .items-table thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .items-table th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .items-table th:last-child,
-        .items-table td:last-child {
-            text-align: right;
-        }
-
-        .items-table tbody tr {
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .items-table tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        .items-table td {
-            padding: 15px;
-            color: #555;
-        }
-
-        .totals {
-            text-align: right;
-            margin-top: 20px;
-        }
-
-        .totals-row {
-            display: flex;
-            justify-content: flex-end;
-            margin: 10px 0;
-            font-size: 1.1em;
-        }
-
-        .totals-label {
-            width: 150px;
-            text-align: right;
-            color: #666;
-            padding-right: 20px;
-        }
-
-        .totals-value {
-            width: 120px;
-            text-align: right;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .grand-total {
-            border-top: 3px solid #667eea;
-            padding-top: 15px;
-            margin-top: 15px;
-        }
-
-        .grand-total .totals-label {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .grand-total .totals-value {
-            color: #764ba2;
-            font-size: 1.4em;
-        }
-
-        .notes {
-            background: #fff9e6;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
-            margin-top: 30px;
-        }
-
-        .notes h3 {
-            color: #f57c00;
-            margin-bottom: 10px;
-        }
-
-        .notes p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .footer {
-            background: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .print-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 20px;
-            transition: transform 0.2s;
-        }
-
-        .print-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .container {
-                box-shadow: none;
-            }
-
-            .header {
-                background: #667eea;
-            }
-
-            .print-button {
-                display: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .invoice-header {
-                flex-direction: column;
-            }
-
-            .invoice-details {
-                text-align: left;
-                margin-top: 20px;
-            }
-
-            .items-table {
-                font-size: 0.9em;
-            }
-
-            .items-table th,
-            .items-table td {
-                padding: 10px 5px;
-            }
-        }
-    </style>
+    @media (max-width: 1200px) {
+      .container { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .preview-frame { width: 100%; min-height: auto; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📄 Fatura Önizleyici</h1>
-            <p>Invoice Previewer - Static Client-Side Application</p>
+  <div class="container">
+    <div class="editor-panel">
+      <div class="panel-header">
+        <span class="panel-title">Editor</span>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="resetToDefault()">Reset</button>
+          <button class="btn btn-primary" onclick="updatePreview()">Update Preview</button>
         </div>
-
-        <div class="invoice-section">
-            <div class="invoice-header">
-                <div class="company-info">
-                    <h2>ACME Corporation</h2>
-                    <p>123 Business Street</p>
-                    <p>Istanbul, Turkey 34000</p>
-                    <p>Tel: +90 212 555 1234</p>
-                    <p>Email: info@acme.com</p>
-                    <p>Vergi No: 1234567890</p>
-                </div>
-                <div class="invoice-details">
-                    <h3>FATURA</h3>
-                    <p><span class="invoice-number">Fatura No: INV-2026-001</span></p>
-                    <p>Tarih: 01 Ocak 2026</p>
-                    <p>Vade Tarihi: 31 Ocak 2026</p>
-                </div>
-            </div>
-
-            <div class="customer-info">
-                <h3>Müşteri Bilgileri</h3>
-                <p><strong>Müşteri Adı:</strong> Örnek Müşteri A.Ş.</p>
-                <p><strong>Adres:</strong> 456 Customer Avenue, Ankara, Turkey</p>
-                <p><strong>Vergi No:</strong> 9876543210</p>
-                <p><strong>Tel:</strong> +90 312 555 5678</p>
-            </div>
-
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th>Ürün/Hizmet</th>
-                        <th>Açıklama</th>
-                        <th style="text-align: center;">Miktar</th>
-                        <th style="text-align: right;">Birim Fiyat</th>
-                        <th style="text-align: right;">Toplam</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Web Tasarım Hizmeti</td>
-                        <td>Kurumsal web sitesi tasarımı</td>
-                        <td style="text-align: center;">1</td>
-                        <td style="text-align: right;">15.000,00 ₺</td>
-                        <td style="text-align: right;">15.000,00 ₺</td>
-                    </tr>
-                    <tr>
-                        <td>Hosting Hizmeti</td>
-                        <td>Yıllık premium hosting paketi</td>
-                        <td style="text-align: center;">1</td>
-                        <td style="text-align: right;">2.500,00 ₺</td>
-                        <td style="text-align: right;">2.500,00 ₺</td>
-                    </tr>
-                    <tr>
-                        <td>SEO Optimizasyonu</td>
-                        <td>3 aylık SEO danışmanlık hizmeti</td>
-                        <td style="text-align: center;">1</td>
-                        <td style="text-align: right;">5.000,00 ₺</td>
-                        <td style="text-align: right;">5.000,00 ₺</td>
-                    </tr>
-                    <tr>
-                        <td>Logo Tasarımı</td>
-                        <td>3 konsept, sınırsız revizyon</td>
-                        <td style="text-align: center;">1</td>
-                        <td style="text-align: right;">3.500,00 ₺</td>
-                        <td style="text-align: right;">3.500,00 ₺</td>
-                    </tr>
-                    <tr>
-                        <td>Teknik Destek</td>
-                        <td>6 ay teknik destek hizmeti</td>
-                        <td style="text-align: center;">1</td>
-                        <td style="text-align: right;">4.000,00 ₺</td>
-                        <td style="text-align: right;">4.000,00 ₺</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="totals">
-                <div class="totals-row">
-                    <div class="totals-label">Ara Toplam:</div>
-                    <div class="totals-value">30.000,00 ₺</div>
-                </div>
-                <div class="totals-row">
-                    <div class="totals-label">KDV (%20):</div>
-                    <div class="totals-value">6.000,00 ₺</div>
-                </div>
-                <div class="totals-row grand-total">
-                    <div class="totals-label">GENEL TOPLAM:</div>
-                    <div class="totals-value">36.000,00 ₺</div>
-                </div>
-            </div>
-
-            <div class="notes">
-                <h3>Notlar</h3>
-                <p>• Ödeme 30 gün içinde yapılmalıdır.</p>
-                <p>• Banka Bilgileri: Örnek Bank - IBAN: TR00 0000 0000 0000 0000 0000 00</p>
-                <p>• Bu fatura elektronik olarak oluşturulmuştur ve geçerlidir.</p>
-                <p>• Herhangi bir sorunuz için lütfen bizimle iletişime geçin.</p>
-            </div>
-
-            <div style="text-align: center;">
-                <button class="print-button" onclick="window.print()">🖨️ Yazdır / Print</button>
-            </div>
+      </div>
+      <div class="editor-content">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('template')">Template HTML</button>
+          <button class="tab" onclick="switchTab('data')">Invoice Data</button>
         </div>
-
-        <div class="footer">
-            <p>© 2026 ACME Corporation - Tüm hakları saklıdır.</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">
-                Bu bir statik fatura önizleyici uygulamasıdır. Tamamen client-side çalışır, backend gerektirmez.
-            </p>
+        <div id="tab-template" class="tab-content active">
+          <textarea id="templateEditor" placeholder="Paste your TEMPLATE_HTML here..." spellcheck="false"></textarea>
         </div>
+        <div id="tab-data" class="tab-content">
+          <textarea id="dataEditor" placeholder="Edit invoice data JSON..." spellcheck="false"></textarea>
+        </div>
+      </div>
     </div>
+    
+    <div class="preview-panel">
+      <div class="panel-header">
+        <span class="panel-title">Preview (A4)</span>
+        <span class="status">Live</span>
+      </div>
+      <div class="preview-content">
+        <div class="preview-frame">
+          <iframe id="previewFrame"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Client-side functionality
-        console.log('Invoice Previewer loaded successfully!');
-        console.log('This is a static, client-side only application.');
-        console.log('No backend required - ready for GitHub Pages deployment.');
+  <script>
+    // ============================================
+    // TEMPLATE - Buraya kendi template'ini yapıştır
+    // ============================================
+    const DEFAULT_TEMPLATE_HTML = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @page { size:A4; margin:10mm; }
+    :root { --foreground:#09090b; --muted:#f4f4f5; --muted-fg:#71717a; --border:#e4e4e7; --primary:#16a34a; --primary-light:#dcfce7; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:var(--foreground); padding:10mm; line-height:1.35; font-size:10px; }
+    .header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:12px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+    .title { font-size:20px; font-weight:700; margin-bottom:2px; }
+    .muted { color:var(--muted-fg); font-size:9px; line-height:1.4; }
+    .company { font-weight:600; font-size:12px; margin-bottom:2px; }
+    .badge { display:inline-block; background:var(--primary-light); color:var(--primary); font-size:8px; font-weight:600; padding:2px 8px; border-radius:9999px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+    .row { display:flex; justify-content:space-between; gap:24px; margin-bottom:14px; }
+    .block { flex:1; }
+    .right { text-align:right; }
+    .label { font-size:8px; font-weight:500; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-fg); margin-bottom:4px; }
+    table { width:100%; border-collapse:collapse; margin-top:4px; }
+    th { font-size:8px; font-weight:500; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-fg); text-align:left; padding:8px 6px; border-bottom:1px solid var(--border); }
+    th.right { text-align:right; }
+    td { padding:10px 6px; border-bottom:1px solid var(--border); vertical-align:top; font-size:10px; }
+    td.right { text-align:right; }
+    .totals { margin-top:14px; display:flex; justify-content:flex-end; }
+    .totals table { width:200px; }
+    .totals td { border:none; padding:5px 0; font-size:10px; }
+    .totals .label { color:var(--muted-fg); font-size:9px; }
+    .totals .grand { font-size:13px; font-weight:700; }
+    .notes { margin-top:14px; background:var(--muted); border-radius:6px; padding:10px 12px; }
+    .notes-title { font-size:8px; font-weight:500; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-fg); margin-bottom:4px; }
+    .notes-body { font-size:9px; color:var(--foreground); line-height:1.5; white-space:pre-line; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="block">
+      <div class="badge">Invoice</div>
+      <div class="title">#{{invoiceNumber}}</div>
+      <div class="muted">Issued: {{issuedOn}} · Due: {{dueOn}}</div>
+    </div>
+    <div class="block right">
+      <div class="company">{{companyName}}</div>
+      <div class="muted">{{{companyLines}}}</div>
+    </div>
+  </div>
 
-        // Add some interactive features
-        document.addEventListener('DOMContentLoaded', function() {
-            // Log invoice details to console
-            console.log('Invoice loaded: INV-2026-001');
-            console.log('Total amount: 36.000,00 ₺');
-        });
+  <div class="row">
+    <div class="block">
+      <div class="label">Bill To</div>
+      <div style="margin-top:4px;font-size:10px;">{{{clientLines}}}</div>
+    </div>
+    <div class="block right">
+      <div class="label">Dates</div>
+      <div class="muted" style="margin-top:4px">Issued: {{issuedOn}}</div>
+      <div class="muted">Due: {{dueOn}}</div>
+    </div>
+  </div>
 
-        // Keyboard shortcut for printing (Ctrl+P)
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'p') {
-                e.preventDefault();
-                window.print();
-            }
-        });
-    </script>
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th class="right">Qty</th>
+        <th class="right">Rate</th>
+        <th class="right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{{itemsRows}}}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <table>
+      <tr><td class="label">Subtotal</td><td class="right">{{subtotalFormatted}}</td></tr>
+      <tr><td class="label">Tax ({{taxRateLabel}}%)</td><td class="right">{{taxAmountFormatted}}</td></tr>
+      <tr><td class="label grand">Total</td><td class="right grand">{{totalFormatted}}</td></tr>
+    </table>
+  </div>
+
+  {{{notesBlock}}}
+</body>
+</html>`;
+
+    // ============================================
+    // INVOICE DATA - Örnek fatura verisi
+    // ============================================
+    const DEFAULT_INVOICE_DATA = {
+      companyName: "GreenField Lawn & Landscape",
+      companyAddress: "8421 Greenway Blvd, Austin, TX 78745",
+      companyEmail: "billing@greenfieldlawn.com",
+      companyPhone: "+1-512-555-0198",
+      invoiceNumber: "GL-1007",
+      issuedOn: "2025-12-31",
+      dueOn: "2026-01-31",
+      clientName: "David Brooks",
+      clientAddress: "4021 Maple St",
+      clientEmail: "dbrooks@gmail.com",
+      lines: [
+        { name: "Soil Conditioning", description: "Soil improvement service", unit_name: "service", quantity: 1, unitPrice: 130 },
+        { name: "Lawn Rolling", description: "Leveling service", unit_name: "service", quantity: 1, unitPrice: 90 },
+        { name: "Fertilizer Boost", description: "Extra fertilizer", unit_name: "treatment", quantity: 2, unitPrice: 60 },
+        { name: "Stump Grinding", description: "Stump removal", unit_name: "job", quantity: 3, unitPrice: 250 }
+      ],
+      currency: "USD",
+      notes: "Payment accepted via ACH, check, or card.\nChecks payable to GreenField Lawn & Landscape.\nPlease include invoice number in memo.",
+      subtotal: 1090,
+      taxRateLabel: "5.15",
+      taxAmount: 56.14,
+      total: 1146.14
+    };
+
+    // ============================================
+    // RENDER ENGINE
+    // ============================================
+    const escapeHtml = (s) => String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    const getPath = (obj, path) => 
+      path.split('.').reduce((acc, k) => (acc == null ? acc : acc[k]), obj);
+
+    const renderTemplate = (tpl, data) => {
+      // {{{raw}}} -> no escape
+      tpl = tpl.replace(/\{\{\{\s*([\w.]+)\s*\}\}\}/g, (_, key) => {
+        const v = getPath(data, key);
+        return v == null ? '' : String(v);
+      });
+      // {{var}} -> escape
+      tpl = tpl.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, key) => {
+        const v = getPath(data, key);
+        return v == null ? '' : escapeHtml(String(v));
+      });
+      return tpl;
+    };
+
+    const formatCurrency = (amount, currency = 'USD') => {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    };
+
+    const prepareTemplateData = (invoice) => {
+      const currency = invoice.currency || 'USD';
+      
+      // Company lines
+      const companyLines = [
+        invoice.companyAddress,
+        invoice.companyEmail,
+        invoice.companyPhone
+      ].filter(Boolean).join('<br>');
+
+      // Client lines
+      const clientLines = [
+        `<strong>${invoice.clientName}</strong>`,
+        invoice.clientAddress,
+        invoice.clientEmail
+      ].filter(Boolean).join('<br>');
+
+      // Items rows
+      const itemsRows = invoice.lines.map(line => {
+        const amount = line.quantity * line.unitPrice;
+        return `<tr>
+          <td><strong>${escapeHtml(line.name)}</strong><br><span style="color:#71717a;font-size:9px">${escapeHtml(line.description || '')}</span></td>
+          <td class="right">${line.quantity} ${escapeHtml(line.unit_name || '')}</td>
+          <td class="right">${formatCurrency(line.unitPrice, currency)}</td>
+          <td class="right">${formatCurrency(amount, currency)}</td>
+        </tr>`;
+      }).join('\n');
+
+      // Notes block
+      const notesBlock = invoice.notes 
+        ? `<div class="notes"><div class="notes-title">Notes</div><div class="notes-body">${escapeHtml(invoice.notes)}</div></div>`
+        : '';
+
+      return {
+        ...invoice,
+        companyLines,
+        clientLines,
+        itemsRows,
+        notesBlock,
+        subtotalFormatted: formatCurrency(invoice.subtotal, currency),
+        taxAmountFormatted: formatCurrency(invoice.taxAmount, currency),
+        totalFormatted: formatCurrency(invoice.total, currency)
+      };
+    };
+
+    // ============================================
+    // UI FUNCTIONS
+    // ============================================
+    const templateEditor = document.getElementById('templateEditor');
+    const dataEditor = document.getElementById('dataEditor');
+    const previewFrame = document.getElementById('previewFrame');
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    function updatePreview() {
+      try {
+        const template = templateEditor.value;
+        const invoiceData = JSON.parse(dataEditor.value);
+        const preparedData = prepareTemplateData(invoiceData);
+        const renderedHtml = renderTemplate(template, preparedData);
+        
+        const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+        doc.open();
+        doc.write(renderedHtml);
+        doc.close();
+      } catch (e) {
+        console.error('Render error:', e);
+        alert('Error: ' + e.message);
+      }
+    }
+
+    function resetToDefault() {
+      templateEditor.value = DEFAULT_TEMPLATE_HTML;
+      dataEditor.value = JSON.stringify(DEFAULT_INVOICE_DATA, null, 2);
+      updatePreview();
+    }
+
+    // Auto-update on input (debounced)
+    let debounceTimer;
+    function autoUpdate() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(updatePreview, 500);
+    }
+
+    templateEditor.addEventListener('input', autoUpdate);
+    dataEditor.addEventListener('input', autoUpdate);
+
+    // Initialize
+    resetToDefault();
+  </script>
 </body>
 </html>
