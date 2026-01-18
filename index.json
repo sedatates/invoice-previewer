@@ -2,8 +2,6 @@
   "version": "1.0.0",
   "templates": [
     { "id": "classic", "label": "Classic", "file": "templates/classic.html" },
-    { "id": "minimal", "label": "Minimal", "file": "templates/minimal.html" },
-    { "id": "professional", "label": "Professional", "file": "templates/professional.html" },
-    { "id": "simple", "label": "Simple", "file": "templates/simple.html" }
+    { "id": "minimal", "label": "Minimal", "file": "templates/minimal.html" }
   ]
 }
