@@ -3,92 +3,90 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    @page { size:A4; margin:12mm; }
-    :root { --foreground:#1e1b4b; --muted:#faf5ff; --muted-fg:#7c3aed; --border:#e9d5ff; --primary:#ec4899; --secondary:#8b5cf6; --accent:#f59e0b; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Poppins','Segoe UI',sans-serif; color:var(--foreground); padding:12mm; line-height:1.5; font-size:10px; background:linear-gradient(135deg,#faf5ff 0%,#fff 100%); }
-    .header { position:relative; padding:20px; background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%); color:white; margin:-12mm -12mm 24px -12mm; clip-path:polygon(0 0,100% 0,100% 85%,0 100%); padding-bottom:30px; }
-    .header-grid { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:start; }
-    .invoice-badge { display:inline-block; background:rgba(255,255,255,0.2); padding:6px 16px; border-radius:20px; font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:600; margin-bottom:8px; }
-    .invoice-number { font-size:32px; font-weight:700; margin-bottom:4px; text-shadow:2px 2px 4px rgba(0,0,0,0.1); }
-    .company { font-size:14px; font-weight:700; margin-bottom:6px; }
-    .company-info { font-size:9px; line-height:1.6; opacity:0.95; }
-    .card { background:white; padding:16px; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.05); margin-bottom:16px; border-left:4px solid var(--accent); }
-    .card-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted-fg); margin-bottom:10px; }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .value { font-size:10px; line-height:1.7; }
-    .highlight { color:var(--primary); font-weight:600; }
-    table { width:100%; border-collapse:collapse; margin:20px 0; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
-    th { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:white; text-align:left; padding:12px; background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%); }
-    th.right { text-align:right; }
-    td { padding:14px 12px; border-bottom:1px solid var(--border); vertical-align:top; font-size:10px; }
-    td.right { text-align:right; }
-    tbody tr:hover { background:var(--muted); }
-    .totals { margin-top:20px; display:flex; justify-content:flex-end; }
-    .totals-box { background:white; padding:16px; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.05); min-width:240px; border:2px solid var(--border); }
-    .totals table { margin:0; box-shadow:none; }
-    .totals td { border:none; padding:8px 0; font-size:10px; }
-    .totals .label { color:var(--muted-fg); }
-    .totals .grand { font-size:16px; font-weight:700; color:var(--primary); padding-top:12px; border-top:2px solid var(--border); }
-    .notes { margin-top:20px; background:var(--muted); padding:16px; border-radius:12px; border-left:4px solid var(--secondary); }
-    .notes-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted-fg); margin-bottom:8px; }
-    .notes-body { font-size:9px; color:var(--foreground); line-height:1.7; white-space:pre-line; }
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @page { size: A4; margin: 0; }
+    @media print {
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
   </style>
 </head>
-<body>
-  <div class="header">
-    <div class="header-grid">
-      <div>
-        <div class="invoice-badge">Invoice</div>
-        <div class="invoice-number">#{{invoiceNumber}}</div>
-        <div style="font-size:9px;opacity:0.9">Issued: {{issuedOn}} · Due: {{dueOn}}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="company">{{companyName}}</div>
-        <div class="company-info">{{{companyLines}}}</div>
-      </div>
-    </div>
-  </div>
+<body class="bg-gradient-to-br from-purple-50 to-white text-gray-800 font-sans text-[10px] leading-relaxed">
 
-  <div class="row">
-    <div class="card">
-      <div class="card-title">Bill To</div>
-      <div class="value">{{{clientLines}}}</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Payment Details</div>
-      <div class="value">
-        <div><span class="highlight">Issued:</span> {{issuedOn}}</div>
-        <div><span class="highlight">Due:</span> {{dueOn}}</div>
+  <!-- Header with gradient -->
+  <div class="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white px-10 py-8 clip-path-[polygon(0_0,100%_0,100%_85%,0_100%)]" style="clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%); padding-bottom: 40px;">
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-4">
+        {{#hasLogo}}
+        <img src="{{companyLogo}}" alt="{{companyName}}" class="h-14 max-w-32 object-contain bg-white rounded-xl p-2 shadow-lg" />
+        {{/hasLogo}}
+        <div>
+          <span class="inline-block bg-white/20 px-4 py-1 rounded-full text-[9px] uppercase tracking-widest font-semibold mb-2">Invoice</span>
+          <h1 class="text-4xl font-bold drop-shadow-lg">#{{invoiceNumber}}</h1>
+          <p class="text-purple-100 text-[9px] mt-2">Issued: {{issuedOn}} · Due: {{dueOn}}</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="font-bold text-lg">{{companyName}}</p>
+        <p class="text-purple-100 text-[9px] leading-relaxed mt-1">{{{companyLines}}}</p>
       </div>
     </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th class="right">Qty</th>
-        <th class="right">Rate</th>
-        <th class="right">Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{{itemsRows}}}
-    </tbody>
-  </table>
+  <!-- Content -->
+  <div class="px-10 py-6">
 
-  <div class="totals">
-    <div class="totals-box">
-      <table>
-        <tr><td class="label">Subtotal</td><td class="right">{{subtotalFormatted}}</td></tr>
-        <tr><td class="label">Tax ({{taxRateLabel}}%)</td><td class="right">{{taxAmountFormatted}}</td></tr>
-        <tr class="grand"><td class="label">Total</td><td class="right">{{totalFormatted}}</td></tr>
+    <!-- Info Cards -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-xl shadow-md border-l-4 border-amber-500">
+        <p class="text-[8px] uppercase tracking-widest text-purple-500 font-bold mb-2">Bill To</p>
+        <p class="text-gray-700">{{{clientLines}}}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-md border-l-4 border-amber-500">
+        <p class="text-[8px] uppercase tracking-widest text-purple-500 font-bold mb-2">Payment Details</p>
+        <p class="text-gray-700"><span class="text-pink-500 font-semibold">Issued:</span> {{issuedOn}}</p>
+        <p class="text-gray-700"><span class="text-pink-500 font-semibold">Due:</span> {{dueOn}}</p>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+            <th class="text-left text-[8px] uppercase tracking-widest font-bold py-3 px-4">Item</th>
+            <th class="text-right text-[8px] uppercase tracking-widest font-bold py-3 px-4">Qty</th>
+            <th class="text-right text-[8px] uppercase tracking-widest font-bold py-3 px-4">Rate</th>
+            <th class="text-right text-[8px] uppercase tracking-widest font-bold py-3 px-4">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{{itemsRows}}}
+        </tbody>
       </table>
     </div>
-  </div>
 
-  {{{notesBlock}}}
+    <!-- Totals -->
+    <div class="flex justify-end">
+      <div class="bg-white p-4 rounded-xl shadow-md border-2 border-purple-100 w-60">
+        <div class="flex justify-between py-2 text-gray-500">
+          <span>Subtotal</span>
+          <span>{{subtotalFormatted}}</span>
+        </div>
+        <div class="flex justify-between py-2 text-gray-500 border-b-2 border-purple-100">
+          <span>Tax ({{taxRateLabel}}%)</span>
+          <span>{{taxAmountFormatted}}</span>
+        </div>
+        <div class="flex justify-between py-3 text-lg font-bold text-gray-800">
+          <span>Total</span>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">{{totalFormatted}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    {{{notesBlock}}}
+
+  </div>
 </body>
 </html>

@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000",
+      "value": "https://puppeteer-js-production-c6c5.up.railway.app",
       "type": "string"
     }
   ],
@@ -98,6 +98,50 @@
           "host": ["{{baseUrl}}"],
           "path": ["render"]
         }
+      }
+    },
+    {
+      "name": "Render PDF Base64 (Preview in Browser)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"template\": \"minimal\",\n  \"data\": {\n    \"invoiceNumber\": \"INV-1007\",\n    \"companyName\": \"Acme Corp\",\n    \"companyAddress\": [\"123 Main St\", \"Austin, TX 78745\"],\n    \"clientName\": \"John Doe\",\n    \"clientAddress\": [\"456 Oak Ave\"],\n    \"issuedOn\": \"2025-01-31\",\n    \"dueOn\": \"2025-02-28\",\n    \"items\": [\n      {\"description\": \"Service\", \"quantity\": 1, \"rate\": 100}\n    ],\n    \"taxRate\": 8,\n    \"currency\": \"$\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/render/base64",
+          "host": ["{{baseUrl}}"],
+          "path": ["render", "base64"]
+        },
+        "description": "Returns JSON with base64 PDF. Copy dataUri value and paste in browser to view PDF."
+      }
+    },
+    {
+      "name": "Render PDF with Logo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"template\": \"modern\",\n  \"data\": {\n    \"invoiceNumber\": \"INV-8001\",\n    \"companyName\": \"Stripe Inc\",\n    \"companyLogo\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/512px-Stripe_Logo%2C_revised_2016.svg.png\",\n    \"companyAddress\": [\n      \"354 Oyster Point Blvd\",\n      \"South San Francisco, CA 94080\",\n      \"billing@stripe.com\"\n    ],\n    \"clientName\": \"Tech Startup LLC\",\n    \"clientAddress\": [\n      \"123 Innovation Way\",\n      \"Austin, TX 78701\"\n    ],\n    \"issuedOn\": \"2025-01-31\",\n    \"dueOn\": \"2025-02-28\",\n    \"items\": [\n      {\n        \"description\": \"Payment Processing Fee\",\n        \"quantity\": 1000,\n        \"rate\": 0.30\n      },\n      {\n        \"description\": \"Platform Fee (2.9%)\",\n        \"quantity\": 1,\n        \"rate\": 290\n      }\n    ],\n    \"taxRate\": 0,\n    \"currency\": \"$\",\n    \"notes\": \"Thank you for using Stripe!\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/render",
+          "host": ["{{baseUrl}}"],
+          "path": ["render"]
+        },
+        "description": "Invoice with company logo from URL"
       }
     },
     {

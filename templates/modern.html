@@ -1,236 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice {{invoiceNumber}}</title>
-    <style>
-      :root {
-        --highlight-color: #2563eb;
-        --highlight-light: #dbeafe;
-        --text-dark: #1f2937;
-        --text-medium: #4b5563;
-        --text-light: #6b7280;
-        --border-color: #e5e7eb;
-        --background-light: #f9fafb;
-      }
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @page { size: A4; margin: 0; }
+    @media print {
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900 font-sans text-[10px] leading-relaxed">
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      @page { size: A4; margin: 10mm; }
-      body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.42; color: var(--text-dark); background:#fff; padding:4mm 6mm; max-width:190mm; margin:0 auto; font-size:12.2px; }
-
-      .header { margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid var(--highlight-color); }
-
-      .header-row { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
-
-      .company-info { flex:1; }
-
-      .company-name { font-size:20px; font-weight:800; color:var(--highlight-color); margin-bottom:4px; letter-spacing:-0.02em; }
-
-      .company-details {
-        color: var(--text-medium);
-        font-size: 12px;
-        line-height: 1.5;
-      }
-
-      .invoice-info {
-        text-align: right;
-        min-width: 200px;
-      }
-
-      .invoice-title { font-size:24px; font-weight:900; color:var(--text-dark); margin-bottom:6px; letter-spacing:-0.025em; }
-
-      .invoice-meta {
-        background: var(--highlight-light);
-        padding: 12px;
-        border-radius: 8px;
-        border-left: 4px solid var(--highlight-color);
-        text-align: left;
-      }
-
-      .invoice-meta p {
-        margin: 2px 0;
-        font-size: 12px;
-      }
-
-      .invoice-meta strong {
-        color: var(--text-dark);
-        font-weight: 600;
-      }
-
-      .customer-section { margin-bottom:16px; }
-
-      .section-title {
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--highlight-color);
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .customer-card { background: var(--background-light); padding:10px; border-radius:6px; border:1px solid var(--border-color); font-size:12px; line-height:1.5; }
-
-      .items-section { margin-bottom:16px; }
-
-      .items-table {
-        width: 100%;
-        border-collapse: collapse;
-        border-radius: 6px;
-        overflow: hidden;
-        border: 1px solid var(--border-color);
-        page-break-inside: avoid;
-      }
-
-      .items-table thead {
-        background: var(--highlight-color);
-        color: white;
-      }
-
-      .items-table th { padding:6px 8px; text-align:left; font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:0.02em; }
-
-      .items-table th:last-child,
-      .items-table td:last-child {
-        text-align: right;
-      }
-
-      .items-table tbody tr {
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .items-table tbody tr:last-child {
-        border-bottom: none;
-      }
-
-      .items-table tbody tr:hover {
-        background-color: var(--background-light);
-      }
-
-      .items-table td { padding:6px 8px; font-size:11.2px; }
-
-      .items-table td.right { text-align:right; }
-
-      .quantity, .unit-price, .line-total {
-        font-family: "Monaco", "Menlo", monospace;
-        font-weight: 600;
-      }
-
-      .totals-section { display:flex; justify-content:flex-end; margin-bottom:16px; }
-
-      .totals-card { background:#fff; border:2px solid var(--highlight-color); border-radius:6px; overflow:hidden; min-width:260px; page-break-inside:avoid; }
-
-      .totals-header { background:var(--highlight-color); color:#fff; padding:8px 12px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em; font-size:12px; }
-
-      .totals-body { padding:10px 12px; }
-
-      .totals-row { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border-color); font-size:12px; }
-
-      .totals-row:last-child { border-bottom:none; border-top:2px solid var(--highlight-color); padding-top:8px; margin-top:6px; }
-
-      .totals-row.total-final { font-size:15px; font-weight:800; color:var(--highlight-color); }
-
-      .totals-label {
-        color: var(--text-medium);
-        font-weight: 500;
-      }
-
-      .totals-value {
-        font-family: "Monaco", "Menlo", monospace;
-        font-weight: 700;
-        color: var(--text-dark);
-        font-size: 12px;
-      }
-
-      .totals-row.total-final .totals-value {
-        font-size: 15px;
-      }
-
-      .notes-section { margin-bottom:16px; }
-
-      .notes-content { background:var(--background-light); padding:10px; border-radius:6px; border-left:4px solid var(--highlight-color); color:var(--text-medium); font-size:11.5px; line-height:1.4; white-space:pre-line; }
-
-      @media print { 
-        body { padding:4mm 6mm; font-size:12px; } 
-        .header { margin-bottom:16px; } 
-        .company-name { font-size:20px; } 
-        .invoice-title { font-size:24px; } 
-        table, tr, td, th { page-break-inside: avoid !important; } 
-      }
-
-      @media (max-width: 640px) {
-        body { padding: 20px; }
-        .header-row { flex-direction: column; gap: 16px; }
-        .invoice-info { text-align: left; }
-        .items-table { font-size: 12px; }
-        .items-table th, .items-table td { padding: 8px 6px; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1 class="invoice-title">Invoice</h1>
-      <div class="header-row">
-        <div class="company-info">
-          <div class="company-name">{{companyName}}</div>
-          <div class="company-details">{{{companyLines}}}</div>
+  <!-- Header with gradient -->
+  <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-10 py-8">
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-4">
+        {{#hasLogo}}
+        <img src="{{companyLogo}}" alt="{{companyName}}" class="h-14 max-w-32 object-contain bg-white rounded-lg p-2" />
+        {{/hasLogo}}
+        <div>
+          <p class="text-blue-200 text-[10px] uppercase tracking-widest mb-1">Invoice</p>
+          <h1 class="text-3xl font-bold">#{{invoiceNumber}}</h1>
         </div>
-        <div class="invoice-info">
-          <div class="invoice-meta">
-            <p><strong>Invoice #:</strong> {{invoiceNumber}}</p>
-            <p><strong>Issue Date:</strong> {{issuedOn}}</p>
-            <p><strong>Due Date:</strong> {{dueOn}}</p>
-          </div>
+      </div>
+      <div class="text-right">
+        <p class="font-bold text-lg">{{companyName}}</p>
+        <p class="text-blue-200 text-[9px] leading-relaxed mt-1">{{{companyLines}}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="px-10 py-6">
+
+    <!-- Info Cards -->
+    <div class="flex gap-6 mb-6">
+      <div class="flex-1 bg-gray-50 rounded-lg p-4">
+        <p class="text-[8px] uppercase tracking-wide text-gray-500 font-semibold mb-2">Bill To</p>
+        <p class="text-gray-800">{{{clientLines}}}</p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-4 w-40">
+        <p class="text-[8px] uppercase tracking-wide text-gray-500 font-semibold mb-2">Issue Date</p>
+        <p class="text-gray-800 font-medium">{{issuedOn}}</p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-4 w-40">
+        <p class="text-[8px] uppercase tracking-wide text-gray-500 font-semibold mb-2">Due Date</p>
+        <p class="text-gray-800 font-medium">{{dueOn}}</p>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-900 text-white">
+          <th class="text-left text-[8px] uppercase tracking-wide font-semibold py-3 px-4 rounded-tl-lg">Item</th>
+          <th class="text-right text-[8px] uppercase tracking-wide font-semibold py-3 px-4">Qty</th>
+          <th class="text-right text-[8px] uppercase tracking-wide font-semibold py-3 px-4">Rate</th>
+          <th class="text-right text-[8px] uppercase tracking-wide font-semibold py-3 px-4 rounded-tr-lg">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{{itemsRows}}}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="flex justify-end mt-6">
+      <div class="w-56 bg-gray-50 rounded-lg p-4">
+        <div class="flex justify-between py-2 text-gray-600">
+          <span>Subtotal</span>
+          <span>{{subtotalFormatted}}</span>
+        </div>
+        <div class="flex justify-between py-2 text-gray-600 border-b border-gray-200">
+          <span>Tax ({{taxRateLabel}}%)</span>
+          <span>{{taxAmountFormatted}}</span>
+        </div>
+        <div class="flex justify-between py-3 text-lg font-bold text-gray-900">
+          <span>Total</span>
+          <span class="text-blue-600">{{totalFormatted}}</span>
         </div>
       </div>
     </div>
 
-    <div class="customer-section">
-      <h2 class="section-title">Bill To</h2>
-      <div class="customer-card">{{{clientLines}}}</div>
-    </div>
-
-    <div class="items-section">
-      <h2 class="section-title">Items</h2>
-      <table class="items-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th class="right">Qty</th>
-            <th class="right">Rate</th>
-            <th class="right">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{{itemsRows}}}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="totals-section">
-      <div class="totals-card">
-        <div class="totals-header">Summary</div>
-        <div class="totals-body">
-          <div class="totals-row">
-            <span class="totals-label">Subtotal</span>
-            <span class="totals-value">{{subtotalFormatted}}</span>
-          </div>
-          <div class="totals-row">
-            <span class="totals-label">Tax ({{taxRateLabel}}%)</span>
-            <span class="totals-value">{{taxAmountFormatted}}</span>
-          </div>
-          <div class="totals-row total-final">
-            <span class="totals-label">Total</span>
-            <span class="totals-value">{{totalFormatted}}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- Notes -->
     {{{notesBlock}}}
-  </body>
+
+  </div>
+</body>
 </html>

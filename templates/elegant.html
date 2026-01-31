@@ -3,65 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    @page { size:A4; margin:15mm; }
-    :root { --foreground:#1e293b; --muted:#f8fafc; --muted-fg:#94a3b8; --border:#e2e8f0; --primary:#8b5cf6; --primary-light:#f5f3ff; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Georgia','Times New Roman',serif; color:var(--foreground); padding:15mm; line-height:1.6; font-size:11px; }
-    .header { text-align:center; padding-bottom:20px; border-bottom:2px solid var(--primary); margin-bottom:24px; }
-    .company { font-size:18px; font-weight:700; color:var(--primary); margin-bottom:6px; letter-spacing:0.05em; }
-    .company-info { font-size:9px; color:var(--muted-fg); line-height:1.6; }
-    .invoice-title { font-size:28px; font-weight:300; color:var(--foreground); margin-top:12px; letter-spacing:0.1em; text-transform:uppercase; }
-    .invoice-number { font-size:12px; color:var(--muted-fg); margin-top:4px; }
-    .row { display:flex; justify-content:space-between; gap:40px; margin-bottom:20px; padding:16px; background:var(--muted); border-radius:4px; }
-    .block { flex:1; }
-    .label { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:8px; font-family:-apple-system,sans-serif; }
-    .value { font-size:10px; line-height:1.7; }
-    table { width:100%; border-collapse:collapse; margin:20px 0; }
-    th { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); text-align:left; padding:12px 8px; border-bottom:2px solid var(--primary); font-family:-apple-system,sans-serif; }
-    th.right { text-align:right; }
-    td { padding:14px 8px; border-bottom:1px solid var(--border); vertical-align:top; font-size:10px; }
-    td.right { text-align:right; }
-    tbody tr:hover { background:var(--muted); }
-    .totals { margin-top:20px; display:flex; justify-content:flex-end; }
-    .totals table { width:240px; }
-    .totals td { border:none; padding:8px 0; font-size:11px; }
-    .totals .label { color:var(--muted-fg); font-size:10px; }
-    .totals .grand { font-size:16px; font-weight:700; color:var(--primary); padding-top:12px; border-top:2px solid var(--primary); }
-    .notes { margin-top:24px; padding:16px; background:var(--primary-light); border-left:4px solid var(--primary); }
-    .notes-title { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:8px; font-family:-apple-system,sans-serif; }
-    .notes-body { font-size:10px; color:var(--foreground); line-height:1.7; white-space:pre-line; }
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @page { size: A4; margin: 0; }
+    @media print {
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
   </style>
 </head>
-<body>
-  <div class="header">
-    <div class="company">{{companyName}}</div>
-    <div class="company-info">{{{companyLines}}}</div>
-    <div class="invoice-title">Invoice</div>
-    <div class="invoice-number">#{{invoiceNumber}}</div>
+<body class="bg-stone-50 text-stone-800 font-serif text-[10px] leading-relaxed p-12">
+
+  <!-- Decorative top border -->
+  <div class="h-1 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 mb-10"></div>
+
+  <!-- Header -->
+  <div class="text-center mb-10">
+    {{#hasLogo}}
+    <img src="{{companyLogo}}" alt="{{companyName}}" class="h-14 max-w-40 object-contain mx-auto mb-4" />
+    {{/hasLogo}}
+    <p class="text-[10px] uppercase tracking-[0.3em] text-amber-700 mb-2">Invoice</p>
+    <h1 class="text-3xl font-light text-stone-700 tracking-wide">#{{invoiceNumber}}</h1>
+    <div class="w-16 h-px bg-amber-500 mx-auto mt-4"></div>
   </div>
 
-  <div class="row">
-    <div class="block">
-      <div class="label">Bill To</div>
-      <div class="value">{{{clientLines}}}</div>
+  <!-- Company & Client -->
+  <div class="flex justify-between mb-10">
+    <div>
+      <p class="text-[8px] uppercase tracking-widest text-stone-400 mb-2">From</p>
+      <p class="font-semibold text-stone-700 text-sm">{{companyName}}</p>
+      <p class="text-stone-500 leading-relaxed mt-1">{{{companyLines}}}</p>
     </div>
-    <div class="block">
-      <div class="label">Invoice Dates</div>
-      <div class="value">
-        <strong>Issued:</strong> {{issuedOn}}<br>
-        <strong>Due:</strong> {{dueOn}}
-      </div>
+    <div class="text-right">
+      <p class="text-[8px] uppercase tracking-widest text-stone-400 mb-2">To</p>
+      <p class="text-stone-600 leading-relaxed">{{{clientLines}}}</p>
     </div>
   </div>
 
-  <table>
+  <!-- Dates -->
+  <div class="flex justify-center gap-16 mb-10 py-4 border-t border-b border-stone-200">
+    <div class="text-center">
+      <p class="text-[8px] uppercase tracking-widest text-stone-400 mb-1">Issue Date</p>
+      <p class="text-stone-700 font-medium">{{issuedOn}}</p>
+    </div>
+    <div class="text-center">
+      <p class="text-[8px] uppercase tracking-widest text-stone-400 mb-1">Due Date</p>
+      <p class="text-stone-700 font-medium">{{dueOn}}</p>
+    </div>
+  </div>
+
+  <!-- Items Table -->
+  <table class="w-full border-collapse mb-8">
     <thead>
-      <tr>
-        <th>Description</th>
-        <th class="right">Quantity</th>
-        <th class="right">Rate</th>
-        <th class="right">Amount</th>
+      <tr class="border-b border-stone-300">
+        <th class="text-left text-[8px] uppercase tracking-widest text-stone-400 py-3">Description</th>
+        <th class="text-right text-[8px] uppercase tracking-widest text-stone-400 py-3">Quantity</th>
+        <th class="text-right text-[8px] uppercase tracking-widest text-stone-400 py-3">Rate</th>
+        <th class="text-right text-[8px] uppercase tracking-widest text-stone-400 py-3">Amount</th>
       </tr>
     </thead>
     <tbody>
@@ -69,14 +66,29 @@
     </tbody>
   </table>
 
-  <div class="totals">
-    <table>
-      <tr><td class="label">Subtotal</td><td class="right">{{subtotalFormatted}}</td></tr>
-      <tr><td class="label">Tax ({{taxRateLabel}}%)</td><td class="right">{{taxAmountFormatted}}</td></tr>
-      <tr class="grand"><td class="label">Total</td><td class="right">{{totalFormatted}}</td></tr>
-    </table>
+  <!-- Totals -->
+  <div class="flex justify-end">
+    <div class="w-56">
+      <div class="flex justify-between py-2 text-stone-500">
+        <span class="italic">Subtotal</span>
+        <span>{{subtotalFormatted}}</span>
+      </div>
+      <div class="flex justify-between py-2 text-stone-500">
+        <span class="italic">Tax ({{taxRateLabel}}%)</span>
+        <span>{{taxAmountFormatted}}</span>
+      </div>
+      <div class="flex justify-between py-3 mt-2 border-t-2 border-amber-500 text-stone-800">
+        <span class="text-sm font-semibold tracking-wide">Total Due</span>
+        <span class="text-lg font-semibold text-amber-700">{{totalFormatted}}</span>
+      </div>
+    </div>
   </div>
 
+  <!-- Notes -->
   {{{notesBlock}}}
+
+  <!-- Decorative bottom border -->
+  <div class="h-1 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 mt-10"></div>
+
 </body>
 </html>
