@@ -1,6 +1,6 @@
-const express = require("express");
-const puppeteer = require("puppeteer");
-const Mustache = require("mustache");
+import express from "express";
+import puppeteer from "puppeteer";
+import Mustache from "mustache";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +9,20 @@ const PORT = process.env.PORT || 3000;
 const CDN_BASE = "https://cdn.jsdelivr.net/gh/sedatates/invoice-previewer@main";
 
 app.use(express.json({ limit: "10mb" }));
+app.use((req, res, next) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    process.env.CORS_ORIGIN || "*"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 // Template cache
 const templateCache = new Map();
@@ -82,7 +96,7 @@ async function getBrowser() {
 }
 
 // Health check
-app.get("/", async (req, res) => {
+app.get("/health", async (req, res) => {
   // Refresh template list if empty
   if (templateList.length === 0) {
     await fetchTemplateList();

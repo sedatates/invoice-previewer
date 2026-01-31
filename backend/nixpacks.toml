@@ -2,7 +2,7 @@
 nixPkgs = ["chromium", "nss", "freetype", "fontconfig"]
 
 [phases.install]
-cmds = ["npm ci"]
+cmds = ["npm install --omit=dev"]
 
 [variables]
 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"

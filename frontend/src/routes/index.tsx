@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Header,
   TemplateSelector,
@@ -12,6 +12,7 @@ import {
 } from "../components";
 import { useInvoice } from "../lib/useInvoice";
 import { useTemplates } from "../lib/useTemplates";
+import { API_BASE } from "../lib/constants";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -31,6 +32,66 @@ function HomePage() {
 
   const [templateHtml, setTemplateHtml] = useState<string | null>(null);
   const [appLoading, setAppLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    if (!selectedTemplate) return;
+
+    const addressToLines = (value: string) =>
+      value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+    const payload = {
+      template: selectedTemplate,
+      data: {
+        ...invoice,
+        companyAddress: addressToLines(invoice.companyAddress),
+        clientAddress: addressToLines(invoice.clientAddress),
+        items: invoice.items.map((item) => ({
+          ...item,
+          quantity: Number(item.quantity) || 0,
+          rate: Number(item.rate) || 0,
+        })),
+      },
+    };
+
+    try {
+      setIsDownloading(true);
+      const response = await fetch(`${API_BASE}/render`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => null);
+        const message =
+          errorPayload?.error ||
+          errorPayload?.message ||
+          "Failed to generate PDF";
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `invoice-${invoice.invoiceNumber || "document"}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF download failed:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to generate PDF"
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [invoice, selectedTemplate]);
 
   // Fetch selected template HTML
   useEffect(() => {
@@ -67,7 +128,7 @@ function HomePage() {
         </div>
       )}
 
-      <Header />
+      <Header onDownload={handleDownload} isDownloading={isDownloading} />
 
       <main className="max-w-7xl mx-auto p-6">
         <div className="main-grid grid grid-cols-[400px_1fr] gap-6 items-start">

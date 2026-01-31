@@ -1,9 +1,9 @@
-import { APP_STORE_URL } from "../lib/constants";
+interface HeaderProps {
+  onDownload: () => void;
+  isDownloading?: boolean;
+}
 
-export function Header() {
-  const handleDownloadClick = () => {
-    window.open(APP_STORE_URL, "_blank");
-  };
+export function Header({ onDownload, isDownloading = false }: HeaderProps) {
 
   return (
     <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
@@ -32,8 +32,9 @@ export function Header() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={handleDownloadClick}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-lg font-medium transition-all flex items-center gap-2 text-sm">
+            onClick={onDownload}
+            disabled={isDownloading}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-lg font-medium transition-all flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -46,7 +47,7 @@ export function Header() {
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            Download PDF
+            {isDownloading ? "Generating..." : "Download PDF"}
           </button>
         </div>
       </div>

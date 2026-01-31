@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://puppeteer-js-production-c6c5.up.railway.app",
+      "value": "https://invoice-backend-production-c91b.up.railway.app",
       "type": "string"
     }
   ],
@@ -19,9 +19,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/",
+          "raw": "{{baseUrl}}/health",
           "host": ["{{baseUrl}}"],
-          "path": [""]
+          "path": ["health"]
         }
       }
     },

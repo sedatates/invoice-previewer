@@ -1,6 +1,15 @@
-FROM node:20-slim
+FROM node:20-slim AS deps
 
-# Install Chrome dependencies
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --omit=dev
+
+FROM node:20-slim AS runtime
+
+# Chrome dependencies for Puppeteer
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -24,23 +33,16 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Puppeteer environment
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV NODE_ENV=production \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy application
+# Reuse production dependencies and copy server files.
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Expose port
 EXPOSE 3000
 
-# Start server
 CMD ["node", "index.js"]
