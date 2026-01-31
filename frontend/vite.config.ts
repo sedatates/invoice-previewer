@@ -8,5 +8,14 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  plugins: [tsConfigPaths(), tanstackStart(), nitro(), react()],
+  plugins: [
+    tsConfigPaths({
+      projects: ['./tsconfig.json'],
+    }),
+    tanstackStart({
+      srcDirectory: 'src',
+    }),
+    react(),
+    nitro(),
+  ],
 });
