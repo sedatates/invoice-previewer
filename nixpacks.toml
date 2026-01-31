@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["chromium", "nss", "freetype", "fontconfig"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[variables]
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+PUPPETEER_EXECUTABLE_PATH = "/nix/store/chromium/bin/chromium"
+
+[start]
+cmd = "node index.js"

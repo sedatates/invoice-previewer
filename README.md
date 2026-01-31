@@ -1,150 +1,110 @@
-# Invoice Templates CDN
+# Invoice Renderer API
 
-Free invoice HTML templates served via jsDelivr CDN for easy integration into your applications.
+PDF invoice renderer service using Puppeteer. Deploy to Railway and generate PDF invoices via API.
 
-## 📦 Usage
+## API Endpoints
 
-### Fetch Template List
+### Health Check
+```
+GET /
+```
+Returns service status and available templates.
 
-```javascript
-const CDN = 'https://cdn.jsdelivr.net/gh/sedatates/invoice-previewer@main';
+### List Templates
+```
+GET /templates
+```
+Returns all available invoice templates.
 
-// Get list of all available templates
-const list = await fetch(`${CDN}/index.json`).then(r => r.json());
-console.log(list);
-// Output: { version: "1.0.0", templates: [...] }
+### Render PDF
+```
+POST /render
+Content-Type: application/json
 ```
 
-### Fetch Specific Template
-
-```javascript
-// Fetch a specific template HTML
-const html = await fetch(`${CDN}/templates/shadcn.html`).then(r => r.text());
-
-// Render with your data (using Mustache or similar templating engine)
-const rendered = Mustache.render(html, invoiceData);
+**Request Body:**
+```json
+{
+  "template": "minimal",
+  "data": {
+    "invoiceNumber": "INV-1007",
+    "companyName": "Acme Corp",
+    "companyAddress": ["123 Main St", "Austin, TX 78745", "hello@acme.com"],
+    "clientName": "John Doe",
+    "clientAddress": ["456 Oak Ave", "New York, NY 10001"],
+    "issuedOn": "2025-01-31",
+    "dueOn": "2025-02-28",
+    "items": [
+      { "description": "Web Development", "quantity": 10, "rate": 150 },
+      { "description": "Design Services", "quantity": 5, "rate": 100 }
+    ],
+    "taxRate": 8,
+    "currency": "$",
+    "notes": "Payment due within 30 days"
+  },
+  "options": {
+    "format": "A4",
+    "marginTop": "10mm",
+    "marginBottom": "10mm"
+  }
+}
 ```
 
-### Using Versioned URLs
+**Response:** PDF file (application/pdf)
 
-For production use, pin to a specific version:
+### Render HTML (Preview)
+```
+POST /render/html
+Content-Type: application/json
+```
+Same body as `/render`, returns HTML instead of PDF.
 
-```javascript
-const CDN = 'https://cdn.jsdelivr.net/gh/sedatates/invoice-previewer@v1.0.0';
+## Available Templates
+
+| ID | Description |
+|---|---|
+| classic | Clean professional design with green accents |
+| minimal | Simple minimalist layout |
+| modern | Contemporary design |
+| professional | Business-focused template |
+| elegant | Refined sophisticated look |
+| bold | Strong typography |
+| creative | Unique artistic style |
+| simple | Basic no-frills template |
+| shadcn | Modern shadcn-inspired design |
+
+## Local Development
+
+```bash
+npm install
+npm run dev
 ```
 
-## 🎨 Available Templates
+Server runs on `http://localhost:3000`
 
-| ID | Label | Description |
-|---|---|---|
-| **classic** | Classic | Clean and professional design with green accents |
-| **modern** | Modern | Contemporary blue gradient header design |
+## Deploy to Railway
 
-## 🔧 Template Placeholders
+1. Push to GitHub
+2. Connect repo to Railway
+3. Deploy automatically
 
-All templates use **Mustache-style placeholders**:
+Railway will use `railway.toml` for configuration.
 
-- `{{variable}}` - Escaped text (safe for user input)
-- `{{{variable}}}` - Raw HTML (for pre-formatted content)
+## Example Usage
 
-### Required Placeholders
+```bash
+# Get PDF
+curl -X POST https://your-app.railway.app/render \
+  -H "Content-Type: application/json" \
+  -d '{"template":"minimal","data":{"invoiceNumber":"INV-001","companyName":"Test","items":[{"description":"Service","quantity":1,"rate":100}]}}' \
+  --output invoice.pdf
 
-| Placeholder | Type | Description | Example |
-|-------------|------|-------------|---------|
-| `{{invoiceNumber}}` | text | Invoice identifier | `"INV-1007"` |
-| `{{companyName}}` | text | Company/business name | `"Acme Corp"` |
-| `{{{companyLines}}}` | html | Company address, email, phone (HTML formatted) | `"123 Main St<br>email@example.com"` |
-| `{{{clientLines}}}` | html | Client name, address, email (HTML formatted) | `"<strong>John Doe</strong><br>456 Oak Ave"` |
-| `{{issuedOn}}` | text | Invoice issue date | `"2025-12-31"` |
-| `{{dueOn}}` | text | Payment due date | `"2026-01-31"` |
-| `{{{itemsRows}}}` | html | Table rows for line items | `"<tr><td>...</td></tr>"` |
-| `{{subtotalFormatted}}` | text | Formatted subtotal amount | `"$1,000.00"` |
-| `{{taxRateLabel}}` | text | Tax rate percentage | `"5.15"` |
-| `{{taxAmountFormatted}}` | text | Formatted tax amount | `"$51.50"` |
-| `{{totalFormatted}}` | text | Formatted total amount | `"$1,051.50"` |
-| `{{{notesBlock}}}` | html | Optional notes section (HTML) | `"<div class=\"notes\">...</div>"` |
-
-### Example Data Structure
-
-```javascript
-const invoiceData = {
-  invoiceNumber: "INV-1007",
-  companyName: "GreenField Lawn & Landscape",
-  companyLines: "8421 Greenway Blvd<br>Austin, TX 78745<br>billing@greenfieldlawn.com<br>+1-512-555-0198",
-  clientLines: "<strong>David Brooks</strong><br>4021 Maple St<br>dbrooks@gmail.com",
-  issuedOn: "2025-12-31",
-  dueOn: "2026-01-31",
-  itemsRows: `
-    <tr>
-      <td><strong>Lawn Care</strong><br><span style="color:#71717a;font-size:9px">Monthly service</span></td>
-      <td class="right">1 service</td>
-      <td class="right">$150.00</td>
-      <td class="right">$150.00</td>
-    </tr>
-  `,
-  subtotalFormatted: "$1,000.00",
-  taxRateLabel: "5.15",
-  taxAmountFormatted: "$51.50",
-  totalFormatted: "$1,051.50",
-  notesBlock: '<div class="notes"><div class="notes-title">Notes</div><div class="notes-body">Payment accepted via ACH or card.</div></div>'
-};
+# Get HTML preview
+curl -X POST https://your-app.railway.app/render/html \
+  -H "Content-Type: application/json" \
+  -d '{"template":"minimal","data":{"invoiceNumber":"INV-001","companyName":"Test","items":[{"description":"Service","quantity":1,"rate":100}]}}'
 ```
 
-## 📋 Integration Example
+## License
 
-```javascript
-import Mustache from 'mustache';
-
-// 1. Fetch template
-const templateUrl = 'https://cdn.jsdelivr.net/gh/sedatates/invoice-previewer@v1.0.0/templates/modern.html';
-const template = await fetch(templateUrl).then(r => r.text());
-
-// 2. Prepare your invoice data
-const invoiceData = prepareInvoiceData(rawData);
-
-// 3. Render
-const html = Mustache.render(template, invoiceData);
-
-// 4. Use the rendered HTML (display, PDF generation, etc.)
-document.getElementById('invoice').innerHTML = html;
-```
-
-## 🖨️ PDF Generation
-
-These templates are designed for A4 paper size and work well with headless browsers:
-
-```javascript
-import puppeteer from 'puppeteer';
-
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.setContent(renderedHTML);
-await page.pdf({
-  path: 'invoice.pdf',
-  format: 'A4',
-  printBackground: true
-});
-await browser.close();
-```
-
-## 🚀 Quick Start
-
-1. Choose a template from the list above
-2. Fetch the template HTML from jsDelivr CDN
-3. Prepare your invoice data with required placeholders
-4. Render using Mustache or compatible templating engine
-5. Display in browser or generate PDF
-
-## 📄 License
-
-MIT License - Free to use for personal and commercial projects.
-
-## 🤝 Contributing
-
-To add new templates or improve existing ones, please submit a pull request to the repository.
-
-## 🔗 Related
-
-- [Invoice Previewer Tool](index.html) - Live preview and test templates
-- [jsDelivr CDN](https://www.jsdelivr.com/) - Fast and reliable CDN service
-- [Mustache.js](https://github.com/janl/mustache.js) - Logic-less templating engine
+MIT
