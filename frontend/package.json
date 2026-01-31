@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "echo 'No build needed for static app'",
+    "build": "vite build",
     "preview": "vite preview",
-    "start": "node server.cjs"
+    "start": "vite preview --host --port $PORT"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.157.18",
