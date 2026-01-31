@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "echo 'No build needed for static app'",
     "preview": "vite preview",
-    "start": "node dist/server/server.js"
+    "start": "serve . -l ${PORT:-3000}"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.157.18",
@@ -16,6 +16,7 @@
     "mustache": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "serve": "^14.2.4",
     "vite-tsconfig-paths": "^6.0.5"
   },
   "devDependencies": {
