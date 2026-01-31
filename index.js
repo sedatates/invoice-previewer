@@ -18,10 +18,14 @@ let templateList = [];
 async function fetchTemplateList() {
   try {
     const response = await fetch(`${CDN_BASE}/index.json`);
-    if (!response.ok) throw new Error(`Failed to fetch index.json: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`Failed to fetch index.json: ${response.status}`);
     const data = await response.json();
     templateList = data.templates || [];
-    console.log(`Loaded ${templateList.length} templates from CDN:`, templateList.map(t => t.id).join(", "));
+    console.log(
+      `Loaded ${templateList.length} templates from CDN:`,
+      templateList.map((t) => t.id).join(", ")
+    );
     return templateList;
   } catch (error) {
     console.error("Error fetching template list:", error.message);
@@ -89,7 +93,7 @@ app.get("/", async (req, res) => {
     service: "Invoice Renderer",
     version: "1.0.0",
     cdn: CDN_BASE,
-    templates: templateList.map(t => t.id),
+    templates: templateList.map((t) => t.id),
   });
 });
 
@@ -110,7 +114,7 @@ app.post("/templates/refresh", async (req, res) => {
   await fetchTemplateList();
   res.json({
     success: true,
-    templates: templateList.map(t => t.id),
+    templates: templateList.map((t) => t.id),
   });
 });
 
@@ -134,7 +138,7 @@ app.post("/render", async (req, res) => {
       await fetchTemplateList();
       return res.status(400).json({
         error: "Template not found",
-        available: templateList.map(t => t.id),
+        available: templateList.map((t) => t.id),
       });
     }
 
@@ -167,7 +171,9 @@ app.post("/render", async (req, res) => {
     await page.close();
 
     const duration = Date.now() - startTime;
-    console.log(`PDF generated in ${duration}ms - template: ${template}, size: ${pdfBuffer.length} bytes`);
+    console.log(
+      `PDF generated in ${duration}ms - template: ${template}, size: ${pdfBuffer.length} bytes`
+    );
 
     res.writeHead(200, {
       "Content-Type": "application/pdf",
@@ -207,7 +213,7 @@ app.post("/render/base64", async (req, res) => {
       await fetchTemplateList();
       return res.status(400).json({
         error: "Template not found",
-        available: templateList.map(t => t.id),
+        available: templateList.map((t) => t.id),
       });
     }
 
@@ -273,7 +279,7 @@ app.post("/render/html", async (req, res) => {
       await fetchTemplateList();
       return res.status(400).json({
         error: "Template not found",
-        available: templateList.map(t => t.id),
+        available: templateList.map((t) => t.id),
       });
     }
 
@@ -330,10 +336,14 @@ function prepareInvoiceData(data) {
       subtotal += amount;
 
       return `<tr class="border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-3 px-3">${escapeHtml(item.description || item.name || "")}</td>
+      <td class="py-3 px-3">${escapeHtml(
+        item.description || item.name || ""
+      )}</td>
       <td class="py-3 px-3 text-right">${qty}</td>
       <td class="py-3 px-3 text-right">${currency}${formatNumber(rate)}</td>
-      <td class="py-3 px-3 text-right font-medium">${currency}${formatNumber(amount)}</td>
+      <td class="py-3 px-3 text-right font-medium">${currency}${formatNumber(
+        amount
+      )}</td>
     </tr>`;
     })
     .join("");
@@ -345,7 +355,9 @@ function prepareInvoiceData(data) {
   const notesBlock = notes
     ? `<div class="mt-8 bg-gray-100 rounded-lg p-4 border-l-4 border-gray-400">
         <p class="text-[8px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Notes</p>
-        <p class="text-[9px] text-gray-700 leading-relaxed whitespace-pre-line">${escapeHtml(notes)}</p>
+        <p class="text-[9px] text-gray-700 leading-relaxed whitespace-pre-line">${escapeHtml(
+          notes
+        )}</p>
       </div>`
     : "";
 
